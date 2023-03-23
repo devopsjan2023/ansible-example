@@ -1,0 +1,7 @@
+group: appprod
+user: appprod
+user_home: /opt/tomcat
+tomcat_zip_url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.87/bin/apache-tomcat-8.5.87.tar.gz
+zip_dest: /tmp/apache-tomcat-8.5.87.tar.gz
+sudo_user: root
+service_name: tomcat

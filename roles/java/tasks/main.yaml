@@ -1,0 +1,12 @@
+---
+- name: install java8
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - java-1.8.0-amazon-corretto
+      - java-1.8.0-amazon-corretto-devel
+
+
+

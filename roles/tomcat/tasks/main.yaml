@@ -1,0 +1,71 @@
+---
+- name: remove tomcat user
+  user:
+    name: tomcat
+    state: absent
+
+- name: create tomcat group
+  group:
+    name: "{{ group }}"
+    state: present
+
+- name: create user tomcat
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    comment: "{{ user }}"
+    shell: /bin/bash
+    create_home: true
+    home: "{{ user_home }}"
+
+- name: download tomcat8 
+  get_url:
+    url: "{{ tomcat_zip_url }}"
+    dest: "{{ zip_dest }}"
+
+- name: extract tomcat tar
+  unarchive:
+    src: "{{ zip_dest }}"
+    dest: "{{ user_home }}"
+    remote_src: yes
+    creates: /opt/tomcat/apache-tomcat-8.5.87
+
+- name: changing owner and group
+  file:
+    path: "{{ user_home }}/apache-tomcat-8.5.87"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    recurse: yes
+
+- name: copy service file
+  template:
+    src: tomcat.service.j2
+    dest: /etc/systemd/system/tomcat.service
+    owner: "{{ sudo_user }}"
+    group: "{{ sudo_user }}"
+    mode: 0755
+
+- name: copy manger config file
+  template:
+    src: manager.context.xml.j2
+    dest: /opt/tomcat/apache-tomcat-8.5.87/webapps/manager/META-INF/context.xml
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0644
+  notify: restart tomcat
+
+- name: copy tomcat-users config file
+  template:
+    src: tomcat-users.xml.j2
+    dest: /opt/tomcat/apache-tomcat-8.5.87/conf/tomcat-users.xml
+    owner: "{{ user }}"
+    group: "{{ user }}"
+    mode: 0644
+  notify: restart tomcat
+
+- name: start and enable tomcat service
+  service:
+    name: "{{ service_name }}"
+    state: started
+    enabled: yes 
+
